@@ -1,0 +1,14 @@
+{
+    "entry": "LeviResidence.js",
+    "name": "LeviResidence",
+    "type": "lse-quickjs",
+    "version": "1.0.0",
+    "author": "1503Dev",
+    "description": "强大的，可高度自定义的LSE领地插件",
+    "extraInfo": {},
+    "dependencies": [
+        {
+            "name": "legacy-script-engine-quickjs"
+        }
+    ]
+}
