@@ -7,3 +7,6 @@
 /resadmin
 /respa
 ```
+
+## 链接
+- [MineBBS](https://www.minebbs.com/resources/leviresidence-lse.12468/)
