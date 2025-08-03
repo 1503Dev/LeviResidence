@@ -4,7 +4,7 @@
 /**
  * 信息
  * 插件名称: LeviResidence
- * 插件版本: 1.0.0
+ * 插件版本: 1.0.1
  * 插件作者: 1503Dev
  * MineBBS: https://www.minebbs.com/members/dev.154006/
  * 
@@ -26,14 +26,14 @@
  * 说明
  * 新人作品，没有经过严格的测试
  * 插件名字纯属蹭热度，本插件与 Java 版的 Residence 插件无关
- * 测试使用版本: LeviLamina v0.12.4, Minecraft v1.20.81 (开发中测试)
+ * 测试使用版本: LeviLamina v0.12.4, Minecraft v1.20.81 (开发中和实装测试)
  *              LeviLamina v1.2.1, Minecraft v1.21.70 (粗略测试)
  */
 
 const Plugin = {
     name: 'LeviResidence',
     desc: '强大的，可高度自定义的LSE领地插件',
-    ver: '1.0.0'
+    ver: '1.0.1'
 }
 ll.registerPlugin(
     Plugin.name,
@@ -248,7 +248,7 @@ class Residence {
     removeAdmin(plName) {
         if (!this.admins) this.admins = []
         if (this.admins.includes(plName)) {
-            this.admins.shift(plName)
+            this.admins.splice(this.admins.indexOf(plName), 1)
             putResidence(this)
         }
     }
@@ -256,12 +256,19 @@ class Residence {
     removeMember(plName) {
         if (!this.members) this.members = []
         if (this.members.includes(plName)) {
-            this.members.shift(plName)
+            this.members.splice(this.members.indexOf(plName), 1)
             putResidence(this)
         }
     }
 
-    showBorder() {
+    /**
+     * 显示领地边框
+     * @param {Player} pl 玩家对象
+     * @return {void}
+     */
+    showBorder(pl) {
+        if (!pl) return;
+        if (pl.distanceTo(this.getTeleportPos()) >= 64) return
         const pos1 = new IntPos(this.pos1[0], this.pos1[1], this.pos1[2], this.pos1[3])
         const pos2 = new IntPos(this.pos2[0], this.pos2[1], this.pos2[2], this.pos2[3])
         new CubicParticlePointSet(pos1, pos2).forEach(p => {
@@ -673,7 +680,7 @@ const workbenches = {
 }
 const RescidenceSettingsName = {
     show_tips_on_enter: '进入领地时显示提示',
-    always_show_residence_name: '在领地内时显示领地名称',
+    always_show_residence_name: '在领地内时持续显示领地名称',
     allow_residence_be_discovered: '在世界领地上显示你的领地并且所有人可传送',
     allow_members_teleport: '允许成员传送到领地',
     allow_wither_boss_destroy: '允许凋零破坏领地',
@@ -1031,7 +1038,7 @@ mc.listen('onServerStarted', () => {
 
     // #endregion
 
-    log('v' + Plugin.ver)
+    // log('v' + Plugin.ver)
 })
 
 mc.listen('onJoin', pl => {
@@ -2227,7 +2234,7 @@ const GUI = {
                         break
                     }
                     case '显示边界': {
-                        res.showBorder()
+                        res.showBorder(pl)
                         break
                     }
                     case '转让': {
@@ -2476,7 +2483,7 @@ const GUI = {
                 failed()
                 return
             }
-            cb(new OccupyingPlayer(players[id].name, players[i].xuid, players[i].uuid), players[id].name)
+            cb(new OccupyingPlayer(players[id].name, players[id].xuid, players[id].uuid), players[id].name)
         })
     },
 
@@ -2529,6 +2536,7 @@ const GUI = {
                 }, admins)
             } else {
                 GUI.listButtons(pl, '移除管理员', admins, (plName) => {
+                    log(plName)
                     res.removeAdmin(plName)
                     cb(pl, res)
                 }, () => {
@@ -2567,6 +2575,7 @@ const GUI = {
                 }, members)
             } else {
                 GUI.listButtons(pl, '移除成员', members, (plName) => {
+                    log(plName)
                     res.removeMember(plName)
                     cb(pl, res)
                 }, () => {
@@ -2672,7 +2681,7 @@ const GUI = {
                         pl.reduceMoney(cost)
                         putResidence(newRes)
                         pl.tell('已向' + dirText + '扩展 ' + blocks + ' 格领地。')
-                        newRes.showBorder()
+                        newRes.showBorder(pl)
                         return
                     }
                     cb(pl, res)
